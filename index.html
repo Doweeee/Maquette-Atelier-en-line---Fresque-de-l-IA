@@ -1,0 +1,1745 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*{margin:0}html{-webkit-text-size-adjust:100%}img,svg{max-width:100%}</style>
+<title>Fresque de l'IA en ligne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Montserrat:wght@400;600;700;900&family=Roboto+Slab:wght@300;400;700&family=Caveat:wght@500;600&display=swap">
+
+<style>
+  :root {
+    --orange:      #F7931D;
+    --orange-deep: #D4740A;
+    --orange-soft: #FBB65C;
+    --ink:         #222222;
+
+    --slate:      #1B2420;
+    --slate-deep: #141B18;
+    --panel:      #232E29;
+    --panel-hi:   #2C3833;
+    --rule:       #3A4741;
+    --chalk:      #EDE8DC;
+    --chalk-dim:  #9AA39C;
+    --chalk-faint:#6E7872;
+
+    --cond: "Saira Condensed", "Arial Narrow", sans-serif;
+    --sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+    --serif: "Roboto Slab", Georgia, serif;
+    --hand: "Caveat", "Bradley Hand", cursive;
+
+    --lot1: #8FB8C9;
+    --lot2: #9CC4A6;
+    --lot3: #E3AC6B;
+    --lot4: #DE8D82;
+    --lot5: #BCA4D4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--slate-deep);
+    color: var(--chalk);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 84rem; margin: 0 auto; padding: 0 1.25rem; }
+
+  h1, h2 { font-family: var(--cond); text-wrap: balance; margin: 0; line-height: 1.05; }
+  h1 { font-size: clamp(2rem, 5.5vw, 3.2rem); font-weight: 700; letter-spacing: .3px; }
+  h2 { font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 700; }
+  p { margin: 0; }
+  .lede { color: var(--chalk-dim); max-width: 54ch; }
+
+  header {
+    padding: clamp(2rem, 5vw, 3.25rem) 0 clamp(1.25rem, 3vw, 2rem);
+    border-bottom: 1px solid var(--rule);
+    background: radial-gradient(110% 80% at 10% 0%, rgba(247,147,29,.11), transparent 55%), var(--slate);
+  }
+  header .wrap { display: flex; flex-direction: column; gap: .9rem; }
+  .badge-lbl {
+    display: inline-flex; align-items: center; gap: .45rem; align-self: flex-start;
+    font-family: var(--sans); font-size: .68rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--orange);
+    border: 1px solid rgba(247,147,29,.4); padding: .3rem .65rem;
+  }
+
+  section { padding: clamp(1.75rem, 4vw, 2.75rem) 0; }
+
+  /* ---------- carte 0, toujours visible ---------- */
+  .intro-strip {
+    display: flex; align-items: flex-start; gap: 1rem;
+    background: var(--panel); border: 1px solid var(--rule);
+    border-left: 3px solid var(--orange);
+    padding: .7rem .85rem; margin-bottom: .75rem;
+  }
+  .intro-strip .ithumb {
+    flex: none; width: 8rem; aspect-ratio: 1.41;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+    border-radius: 2px; padding: .45rem;
+  }
+  /* max-width/max-height plutôt que width/height : l'image ne peut pas dépasser
+     la vignette, donc aucun rognage possible, quel que soit l'object-fit hérité */
+  .intro-strip .ithumb img {
+    max-width: 100%; max-height: 100%; width: auto; height: auto;
+    object-fit: contain; display: block;
+  }
+  /* le badge garde sa taille et ses proportions quel que soit le contexte */
+  .intro-strip .ithumb .introbadge {
+    flex: none; width: 3.1rem; height: 3.1rem;
+    max-width: none; max-height: none; min-width: 0; display: block;
+  }
+  .intro-strip .itxt { min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
+  .intro-strip .ibody { font-size: .86rem; line-height: 1.5; color: var(--chalk-dim); }
+  .intro-strip .ibody p { margin: 0; }
+  .intro-strip .ibody p + p { margin-top: .5rem; }
+  @media (max-width: 640px) { .intro-strip .ithumb { display: none; } }
+
+  /* ---------- barre d'outils ---------- */
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .4rem;
+    padding: .6rem; background: var(--panel); border: 1px solid var(--rule);
+  }
+  .tgroup { display: flex; gap: .28rem; align-items: center; }
+  .tsep { width: 1px; align-self: stretch; background: var(--rule); margin: 0 .3rem; }
+  .tlabel {
+    font-family: var(--sans); font-size: .62rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--chalk-faint);
+  }
+
+  button {
+    font-family: var(--sans); font-size: .78rem; font-weight: 600;
+    color: var(--chalk); background: var(--panel-hi);
+    border: 1px solid var(--rule); border-radius: 2px;
+    padding: .4rem .62rem; cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  button:hover:not(:disabled) { background: #364440; border-color: #4A5852; }
+  button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  button[aria-pressed="true"] {
+    background: rgba(247,147,29,.17); border-color: var(--orange); color: var(--orange-soft);
+  }
+  button.primary { background: var(--orange); color: #201704; border-color: var(--orange); font-weight: 700; }
+  button.primary:hover:not(:disabled) { background: var(--orange-soft); }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  .zoomval {
+    font-family: var(--sans); font-size: .76rem; color: var(--chalk-dim);
+    min-width: 3rem; text-align: center; font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- scène et tableau ---------- */
+  #stage { display: flex; flex-direction: column; }
+  #stage.fs {
+    position: fixed; inset: 0; z-index: 500;
+    background: var(--slate-deep); padding: .6rem; gap: .5rem; overflow: hidden;
+  }
+  #stage.fs .intro-strip { margin-bottom: 0; }
+
+  .layout { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-top: none; }
+  @media (min-width: 940px) { .layout { grid-template-columns: 1fr 15rem; } }
+  #stage.fs .layout { flex: 1; min-height: 0; border-top: 1px solid var(--rule); }
+
+  #board {
+    position: relative; height: clamp(30rem, 74vh, 62rem); overflow: hidden;
+    background:
+      radial-gradient(90% 60% at 25% 15%, rgba(255,255,255,.05), transparent 60%),
+      radial-gradient(70% 70% at 80% 85%, rgba(255,255,255,.03), transparent 60%),
+      repeating-linear-gradient(102deg, rgba(255,255,255,.013) 0 2px, transparent 2px 7px),
+      #1F2A25;
+    touch-action: none;
+  }
+  #stage.fs #board { height: 100%; }
+  #board.crosshair { cursor: crosshair; }
+  #board.panning { cursor: grabbing; }
+  #canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  /* will-change garde une couche composite en mémoire : on ne la demande
+     que pendant un déplacement, pas en permanence */
+  #canvas.moving { will-change: transform; }
+  #svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  #svg .grab { pointer-events: stroke; cursor: pointer; }
+  #layer { position: absolute; inset: 0; pointer-events: none; }
+  #layer > * { pointer-events: auto; }
+
+  /* ---------- vignette de carte ---------- */
+  .card {
+    position: absolute; width: 9.5rem;
+    background: #0E1412; border: 1px solid var(--rule);
+    border-radius: 3px; overflow: hidden; cursor: grab;
+    user-select: none; box-shadow: 0 6px 18px rgba(0,0,0,.45); z-index: 10;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover { border-color: #52605A; box-shadow: 0 10px 26px rgba(0,0,0,.6); }
+  .card.dragging { cursor: grabbing; z-index: 40; box-shadow: 0 16px 36px rgba(0,0,0,.7); }
+  .card.pending { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(247,147,29,.45), 0 10px 26px rgba(0,0,0,.6); }
+  .card:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .card .thumb { display: block; width: 100%; aspect-ratio: 1.6; object-fit: cover; background: #0E1412; }
+  .card .thumb-none {
+    display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1.6;
+    background: repeating-linear-gradient(45deg, #1A2320 0 6px, #202B27 6px 12px);
+    font-family: var(--sans); font-size: .62rem; color: var(--chalk-faint);
+  }
+  .card .bar {
+    display: flex; align-items: flex-start; gap: .38rem;
+    padding: .38rem .45rem; background: var(--panel); border-top: 2px solid var(--orange);
+  }
+  .card .num {
+    flex: none; width: 1.15rem; height: 1.15rem; border-radius: 50%;
+    background: var(--orange); color: #201704;
+    font-family: var(--sans); font-size: .62rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .card .ttl { font-family: var(--cond); font-size: .84rem; font-weight: 600; line-height: 1.15; }
+  .card .lotdot {
+    position: absolute; top: .3rem; left: .3rem;
+    font-family: var(--sans); font-size: .55rem; font-weight: 700; letter-spacing: .06em;
+    padding: .1rem .3rem; border-radius: 2px; background: rgba(12,18,16,.78);
+  }
+  .card .zoom {
+    position: absolute; top: .28rem; right: .28rem;
+    width: 1.4rem; height: 1.4rem; padding: 0; font-size: .74rem;
+    background: rgba(12,18,16,.82); border-color: rgba(237,232,220,.28);
+    opacity: 0; transition: opacity .15s ease;
+  }
+  .card:hover .zoom, .card:focus-within .zoom { opacity: 1; }
+  .card.arriving { animation: pop .65s ease-out; }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(.9); box-shadow: 0 0 0 7px rgba(247,147,29,.35); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ---------- textes libres et libellés de flèche ---------- */
+  .btext, .alabel {
+    position: absolute; font-family: var(--hand); color: var(--chalk);
+    padding: .05rem .3rem; border: 1px dashed transparent; border-radius: 2px;
+    cursor: grab; white-space: pre-wrap; word-break: break-word; z-index: 70;
+  }
+  .btext { font-size: 1.5rem; line-height: 1.2; min-width: 4rem; max-width: 15rem; }
+  .alabel {
+    font-size: 1.15rem; line-height: 1.15; max-width: 10rem; text-align: center;
+    transform: translate(-50%, -50%);
+    background: rgba(20,27,24,.9); border-color: rgba(58,71,65,.9);
+  }
+  .btext:hover, .alabel:hover { border-color: var(--rule); }
+  .btext:focus, .alabel:focus {
+    outline: none; border-color: var(--orange); cursor: text; background: rgba(8,12,11,.78);
+  }
+  .btext:empty::before, .alabel:empty::before { content: "écrire…"; color: var(--chalk-faint); }
+  .del, .tdel {
+    position: absolute; z-index: 80; width: 1.3rem; height: 1.3rem; padding: 0;
+    font-size: .74rem; line-height: 1; transform: translate(-50%, -50%);
+    background: var(--slate-deep); border-color: var(--orange); color: var(--orange-soft);
+  }
+
+  /* ---------- panneau latéral ---------- */
+  .side { background: var(--panel); padding: .9rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
+  .sblock { display: flex; flex-direction: column; gap: .45rem; }
+  .side h3 {
+    margin: 0; font-family: var(--sans); font-size: .63rem; font-weight: 700;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--chalk-faint);
+  }
+  .deckline { font-family: var(--sans); font-size: .76rem; color: var(--chalk-dim); }
+  .deckline b { color: var(--chalk); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .hand { display: flex; flex-direction: column; gap: .3rem; }
+  .hrow { display: flex; gap: .25rem; align-items: stretch; }
+  .hcard {
+    display: flex; align-items: center; gap: .4rem; flex: 1; min-width: 0;
+    text-align: left; padding: .35rem .45rem; border-left: 3px solid var(--orange);
+  }
+  .hzoom { flex: none; width: 1.85rem; padding: 0; font-size: .74rem; }
+  .hcard .hn { flex: none; font-family: var(--sans); font-size: .66rem; font-weight: 900; color: var(--orange); font-variant-numeric: tabular-nums; }
+  .hcard .ht { font-family: var(--cond); font-size: .84rem; font-weight: 600; line-height: 1.15; }
+  .note-empty { font-size: .76rem; color: var(--chalk-faint); font-style: italic; }
+  .roster { display: flex; flex-direction: column; gap: .05rem; }
+  .rrow {
+    display: flex; align-items: center; justify-content: space-between; gap: .4rem;
+    font-family: var(--sans); font-size: .74rem; color: var(--chalk-dim); padding: .12rem 0;
+  }
+  .rrow .who { display: flex; align-items: center; gap: .38rem; }
+  .rrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #7FA88C; flex: none; }
+  .rrow .n { font-variant-numeric: tabular-nums; color: var(--chalk-faint); }
+  .lotkey { display: flex; flex-direction: column; gap: .15rem; }
+  .lotkey div { font-family: var(--sans); font-size: .68rem; display: flex; align-items: center; gap: .4rem; }
+  .lotkey i { width: .55rem; height: .55rem; border-radius: 2px; flex: none; }
+
+  #toast {
+    position: absolute; left: 50%; bottom: .9rem; transform: translateX(-50%) translateY(.8rem);
+    background: var(--slate-deep); border: 1px solid var(--rule); color: var(--chalk-dim);
+    font-family: var(--sans); font-size: .76rem; padding: .42rem .7rem; border-radius: 2px;
+    opacity: 0; transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none; max-width: 92%; z-index: 90;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .diag {
+    margin-top: .3rem; font-size: .82rem; color: var(--chalk-dim);
+    background: var(--panel); border: 1px solid var(--rule); padding: .5rem .7rem;
+  }
+  .diag summary {
+    cursor: pointer; font-family: var(--sans); font-size: .74rem; font-weight: 700;
+    color: var(--orange-soft);
+  }
+  .diag ul { margin: .5rem 0 0; padding-left: 1.1rem; }
+  .diag li { margin-bottom: .35rem; }
+  .diag code {
+    font-size: .76rem; color: var(--chalk-faint);
+    display: block; word-break: break-all;
+  }
+
+  .hints { display: flex; flex-direction: column; gap: .3rem; margin-top: .9rem; }
+  .hint { font-size: .84rem; color: var(--chalk-faint); }
+  .hint b { font-family: var(--sans); font-weight: 700; font-size: .72rem; letter-spacing: .04em;
+            text-transform: uppercase; color: var(--chalk-dim); margin-right: .3rem; }
+
+  /* ---------- fiche carte en grand ---------- */
+  #modal {
+    position: fixed; inset: 0; z-index: 600; display: none;
+    align-items: center; justify-content: center; padding: 1.25rem;
+    background: rgba(8,12,11,.85);
+  }
+  #modal.open { display: flex; }
+  .mbox {
+    background: var(--panel); border: 1px solid var(--rule);
+    width: 100%; max-width: 33rem; display: flex; flex-direction: column; max-height: 100%;
+  }
+  .mhead {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: .6rem .8rem; border-bottom: 1px solid var(--rule);
+  }
+  .mhead .mt { font-family: var(--sans); font-weight: 700; font-size: .82rem; letter-spacing: .04em; }
+  .mbody { padding: .9rem; overflow-y: auto; }
+  .mfoot { padding: .6rem .8rem; border-top: 1px solid var(--rule); display: flex; gap: .4rem; }
+
+  /* recto reconstitué */
+  .rcard {
+    position: relative; aspect-ratio: 1.41; overflow: hidden;
+    background: #fff; font-family: var(--cond); border: 1px solid var(--rule);
+  }
+  .rcard .rimg { position: absolute; inset: 0; background: #111; }
+  .rcard .rimg img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+
+  /* « image entière » : l'illustration tient dans la zone libre entre le bandeau
+     et les jetons du bas, réduite par le facteur --z de la planche */
+  .rcard .rimg.mode-fit { background: var(--imgbg, #fff); }
+  .rcard .rimg.mode-fit img {
+    top: 30.5%; left: 5.4%; right: auto; bottom: auto;
+    width: 89.2%; height: 44.7%;
+    object-fit: contain;
+    transform: scale(var(--z, 1)); transform-origin: center;
+  }
+  /* « sous bandeau » : pleine largeur, bord haut au bas du bandeau titre */
+  .rcard .rimg.mode-band { background: var(--imgbg, #fff); }
+  .rcard .rimg.mode-band img {
+    top: var(--bandtop, 22%); bottom: auto; height: auto; min-height: 0;
+  }
+  /* zone fixe : du bas du bandeau jusqu'à --bb du bas de la carte */
+  .rcard .rimg.mode-band.is-zone img {
+    height: calc(100% - var(--bandtop, 22%) - var(--bb, 0%));
+  }
+  .rcard .rimg.mode-band.is-contain img { object-fit: contain; }
+  /* « naturel pleine largeur » : image complète, centrée verticalement */
+  .rcard .rimg.mode-nat { background: var(--imgbg, #fff); }
+  .rcard .rimg.mode-nat img {
+    top: 50%; bottom: auto; height: auto; object-fit: contain;
+    transform: translateY(-50%);
+  }
+  .rcard .rimg.none {
+    background: repeating-linear-gradient(118deg, #20242b 0 10px, #262b33 10px 20px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rcard .rimg.none span {
+    font-family: var(--sans); font-size: .62rem; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: rgba(255,255,255,.42);
+  }
+  .rcard .rband {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 10; background: var(--orange);
+    padding: 4.5% 8% 7.5%; text-align: center;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5%), 0 100%);
+  }
+  .rcard .rtitle {
+    color: #fff; font-family: var(--cond); font-weight: 700;
+    font-size: clamp(.95rem, 3.6cqw, 1.5rem); line-height: 1; letter-spacing: .3px; text-wrap: balance;
+  }
+  .rcard .rnum {
+    position: absolute; bottom: 5.5%; left: 5.5%; width: 11.5%; aspect-ratio: 1;
+    border-radius: 50%; background: var(--orange); z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(20,14,4,.35);
+  }
+  .rcard .rnum::before {
+    content: ""; position: absolute; inset: 8%; border: 1px solid rgba(255,255,255,.95); border-radius: 50%;
+  }
+  .rcard .rnum span {
+    position: relative; font-family: var(--sans); font-weight: 900; color: #fff;
+    font-size: clamp(.6rem, 2.2cqw, .95rem); line-height: 1;
+  }
+  .rlot {
+    position: absolute; bottom: 5.5%; right: 5.5%; z-index: 20;
+    display: flex; align-items: center; gap: .35rem;
+    background: var(--orange); border-radius: 2px; padding: .18rem .45rem;
+    transform: skewX(-8deg); box-shadow: 0 1px 4px rgba(20,14,4,.35);
+  }
+  .rlot > * { transform: skewX(8deg); }
+  .rlot .lw { font-family: var(--sans); font-size: .5rem; font-weight: 700; letter-spacing: .1em; color: #fff; opacity: .9; }
+  .rlot .ln { font-family: var(--sans); font-size: .8rem; font-weight: 900; color: #fff; line-height: 1; }
+  .rlot svg { width: .85rem; height: .85rem; }
+
+  /* étiquette de lot au verso : version contour, comme sur la carte imprimée */
+  .vcard .rlot { background: #fff; border: 1px solid var(--orange); box-shadow: none; }
+  .vcard .rlot .lw, .vcard .rlot .ln { color: var(--orange); }
+
+  /* verso reconstitué */
+  .vcard {
+    position: relative; aspect-ratio: 1.41; overflow: hidden; background: #fff;
+    border: 1px solid var(--rule); padding: 7% 7% 9%;
+    display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center;
+  }
+  .vcard::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3.2%;
+    background: var(--orange); clip-path: polygon(0 0, 100% 0, 100% 38%, 0 100%);
+  }
+  .vcard .vghost {
+    position: absolute; left: 2%; bottom: -8%; z-index: 0;
+    font-family: var(--cond); font-weight: 700; font-size: 9rem; line-height: 1;
+    color: var(--orange); opacity: .1; user-select: none;
+  }
+  .vcard .vin { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+  .vcard .vtitle { font-family: var(--cond); font-weight: 700; color: var(--ink); font-size: 1.1rem; line-height: 1.05; }
+  .vcard .vrule { width: 2.5rem; height: 3px; background: var(--orange); transform: skewX(-35deg); }
+  .vcard .vtext { font-family: var(--serif); font-weight: 300; color: var(--ink); font-size: .8rem; line-height: 1.45; }
+  .vcard .vtext p { margin: 0 0 .5rem; }
+  .vcard .vtext p:last-child { margin: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="badge-lbl">Maquette d'interaction · Pause IA</span>
+    <h1>Fresque de l'IA en ligne</h1>
+    <p class="lede">Un animateur, jusqu'à huit participants, un tableau noir partagé et 38 cartes.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div id="stage">
+
+      <div class="intro-strip">
+        <div class="ithumb" id="introThumb"></div>
+        <div class="itxt">
+          <div class="ibody" id="introBody"></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tgroup">
+          <span class="tlabel">Vue</span>
+          <button id="roleA" aria-pressed="true">Animateur</button>
+          <button id="roleP" aria-pressed="false">Participant</button>
+        </div>
+        <div class="tsep"></div>
+        <div class="tgroup">
+          <span class="tlabel">Outil</span>
+          <button id="tMove" aria-pressed="true">Déplacer</button>
+          <button id="tArrow" aria-pressed="false">Flèche →</button>
+          <button id="tArrowBi" aria-pressed="false">Flèche ↔</button>
+          <button id="tText" aria-pressed="false">Texte</button>
+        </div>
+        <div class="tsep"></div>
+        <div class="tgroup">
+          <span class="tlabel">Zoom</span>
+          <button id="zOut" aria-label="Dézoomer">−</button>
+          <span class="zoomval" id="zVal">100 %</span>
+          <button id="zIn" aria-label="Zoomer">+</button>
+          <button id="zFit">Tout voir</button>
+          <button id="zWheel" aria-pressed="false" title="Zoomer avec la molette de la souris">Molette</button>
+        </div>
+        <div class="tsep"></div>
+        <div class="tgroup">
+          <button id="fs">Plein écran</button>
+          <button id="sim">Simuler un participant</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div id="board">
+          <div id="canvas">
+            <svg id="svg" aria-hidden="true"></svg>
+            <div id="layer"></div>
+          </div>
+          <div id="toast" role="status" aria-live="polite"></div>
+        </div>
+
+        <aside class="side">
+          <div class="sblock" id="deckBlock">
+            <h3>Pioche</h3>
+            <p class="deckline"><b id="deckN">0</b> cartes restantes</p>
+            <button class="primary" id="dealOne">Distribuer</button>
+            <button id="dealAll">Distribuer à chacun</button>
+            <p class="note-empty" id="dealNote" hidden></p>
+          </div>
+          <div class="sblock" id="handBlock">
+            <h3>Ma main</h3>
+            <div class="hand" id="hand"></div>
+            <p class="note-empty" id="handEmpty">Aucune carte reçue.</p>
+          </div>
+          <div class="sblock">
+            <h3>Participants</h3>
+            <div class="roster" id="roster"></div>
+          </div>
+          <div class="sblock">
+            <h3>Lots</h3>
+            <div class="lotkey" id="lotkey"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="hints">
+      <p class="hint"><b>Cartes</b> Cliquez une carte de votre main pour la poser. Sur le tableau, glissez-la ; le bouton ⤢ l'ouvre en grand et permet de la retourner.</p>
+      <p class="hint"><b>Flèches</b> Choisissez l'outil Flèche, cliquez la carte de départ puis celle d'arrivée. Cliquez le trait pour écrire dessus ou le supprimer.</p>
+      <p class="hint"><b>Textes</b> Outil Texte puis un clic sur le tableau. Un texte se déplace en le glissant, et s'édite d'un clic. Une croix apparaît dessous pour le supprimer ; un texte laissé vide disparaît tout seul.</p>
+      <p class="hint"><b>Zoom</b> Dézoomez pour dégager de la place : cartes, flèches et textes suivent ensemble. Glissez une zone vide pour vous déplacer. Activez « Molette » pour zoomer à la molette ; Ctrl + molette marche toujours, et en plein écran la molette zoome d'office.</p>
+      <p class="hint"><b>Images</b> Placez ce fichier à côté du dossier <code>img/</code> de la planche d'impression : les visuels se chargent tout seuls, sans rien renommer.</p>
+      <details class="diag" id="diag" hidden>
+        <summary id="diagSum"></summary>
+        <div id="diagBody"></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+  <div class="mbox">
+    <div class="mhead">
+      <span class="mt" id="mtitle"></span>
+      <button id="mclose" aria-label="Fermer">✕</button>
+    </div>
+    <div class="mbody" id="mbody"></div>
+    <div class="mfoot"><button id="mflip" class="primary">Retourner la carte</button></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const CARDS = [
+  {n:0, lot:null, intro:true, t:"Fresque de l'IA",
+   v:"Adaptée de la Fresque de la sécurité de l'IA du Centre pour la Sécurité de l'IA (CeSIA), elle-même inspirée de la Fresque du Climat, la Fresque de l'IA par Pause IA est un atelier collaboratif pour comprendre ensemble les enjeux de l'IA, sans prérequis technique.\nLes participant·es relient les cartes pour dresser une vue d'ensemble : comment l'IA fonctionne, ce qu'elle sait faire, ses impacts, ses risques et les solutions disponibles."},
+
+  /* ----- LOT 1 ----- */
+  {n:1, lot:1, band:"contain", bb:"0mm", bg:"#000",
+   old:1, oldT:"Système d'Intelligence Artificielle (IA)",
+   t:"Modèle d'Intelligence Artificielle (IA)",
+   v:"Un modèle d'IA est un programme informatique qui apprend à partir d'une grande quantité de données à atteindre un objectif fixé. Une fois entraîné, il peut produire des réponses, des contenus (images, vidéos, sons) ou prendre des décisions pour accomplir son objectif."},
+  {n:2, lot:1, old:2, oldT:"Données d'entraînement",
+   t:"Données d'entraînement",
+   v:"Les modèles d'IA sont entraînés à partir d'immenses quantités de données, majoritairement collectées sur le web. Les IA apprennent en identifiant les motifs et les relations au sein de ces données, pour faire des prédictions ou prendre des décisions."},
+  {n:3, lot:1, fit:1, old:3, oldT:"Amélioration des capacités",
+   t:"Amélioration des capacités",
+   v:"Pour entraîner un modèle d'IA plus performant, il faut mobiliser des moyens considérables : davantage de puissance de calcul, des équipes de recherche spécialisées et d'immenses volumes de données d'entraînement.\nPlus l'investissement est important, plus il devient possible d'entraîner des modèles puissants, rapides et autonomes."},
+  {n:4, lot:1, old:4, oldT:"Automatisation du travail",
+   t:"Automatisation du travail",
+   v:"En automatisant une partie des tâches, l'IA peut rendre le travail plus rapide et augmenter la productivité. Cette même automatisation menace l'emploi : une part croissante des métiers peut être partiellement ou totalement remplacée. Contrairement aux révolutions techniques passées, ce sont d'abord les tâches intellectuelles et créatives qui sont touchées."},
+  {n:5, lot:1, old:5, oldT:"IA cultivée, pas programmée",
+   t:"IA cultivée, pas programmée",
+   v:"Une IA moderne n'est pas construite ligne par ligne : elle est plutôt cultivée, comme on fait pousser une plante. Exposée à d'immenses quantités de données, elle développe au cours de son entraînement des capacités et des comportements imprévus, que personne n'a explicitement programmés."},
+  {n:6, lot:1, band:true, bb:"0mm", old:6, oldT:"Boîte noire",
+   t:"Boîte noire",
+   v:"On connaît chaque paramètre d'un modèle et pourtant personne ne sait dire pourquoi cette combinaison de milliards de réglages produit telle réponse. Même ses créateur·ices ne peuvent l'expliquer. Comme un cerveau à l'IRM : on voit où ça se passe, pas pourquoi."},
+
+  /* ----- LOT 2 ----- */
+  {n:7, lot:2, band:"contain", bt:-3, by:"-20px", old:7, oldT:"Autonomie",
+   t:"Autonomie",
+   v:"Capacité d'une IA à poursuivre un objectif sur la durée : décomposer une tâche en étapes, agir, observer le résultat et corriger sa trajectoire, avec peu ou pas d'intervention humaine."},
+  {n:8, lot:2, band:"contain", bt:-3, old:8, oldT:"Génération d'images",
+   t:"Génération d'images",
+   v:"À partir d'une simple requête, certaines IA produisent des images et des vidéos de plus en plus réalistes."},
+  {n:9, lot:2, band:"contain", bz:0.75, old:9, oldT:"Recommandation personnalisée de contenus",
+   t:"Recommandation personnalisée de contenus",
+   v:"Sur les réseaux sociaux et les plateformes, des modèles d'IA analysent les comportements des utilisateur·ices pour leur proposer les contenus les plus susceptibles de retenir leur attention."},
+  {n:10, lot:2, band:true, bz:1.1, old:10, oldT:"Robotique",
+   t:"Robotique",
+   v:"Jusqu'ici, les IA agissaient surtout sur des écrans : du texte, des images, des sons. En intégrant les IA dans des robots, elles peuvent agir directement dans le monde réel : attraper des objets, se déplacer dans un endroit inconnu, accomplir des actions de plus en plus complexes, avec une autonomie croissante."},
+  {n:11, lot:2, old:11, oldT:"Génération de texte et de code",
+   t:"Génération de texte et de code",
+   v:"Certaines IA génératives, les Grands Modèles de Langage (LLM), ont aujourd'hui la capacité de rédiger des textes et/ou du code informatique, pertinents dans un nombre croissant d'applications."},
+  {n:12, lot:2, fit:1.2, old:12, oldT:"Sous-objectifs émergents",
+   t:"Stratégies récurrentes",
+   v:"Quel que soit son objectif, une IA a intérêt à rester allumée, à obtenir des ressources et à préserver ses buts. Non pas par instinct de survie, mais parce que sans cela, elle ne peut pas réussir. C'est pourquoi des IA aux missions très différentes tendent vers les mêmes objectifs intermédiaires."},
+  /* NOUVELLE CARTE — lot 2 retenu par défaut (à confirmer), image à fournir */
+  {n:13, lot:2,
+   t:"Capacités émergentes",
+   v:"À mesure que la taille et la puissance d'une IA augmentent, des compétences inédites apparaissent sans avoir été explicitement programmées. Par exemple, personne n'avait prévu que des modèles comme ChatGPT deviendraient aussi bons en code, en biologie ou en mathématiques. Il devient donc très difficile de prévoir ce dont l'IA sera capable."},
+
+  /* ----- LOT 3 ----- */
+  {n:14, lot:3, band:true, bb:"0mm", old:13, oldT:"Deepfake",
+   t:"Deepfake",
+   v:"Un deepfake imite l'apparence ou la voix d'une personne réelle de façon très convaincante. Quelques secondes d'enregistrement suffisent aujourd'hui pour cloner une voix. On peut ainsi faire dire ou faire faire presque n'importe quoi à quelqu'un, pour désinformer ou pour escroquer, par exemple en imitant la voix d'un proche au téléphone. Comment les repérer ?"},
+  {n:15, lot:3, fit:1, old:14, oldT:"Manque de fiabilité",
+   t:"Manque de fiabilité",
+   v:"Les IA peuvent produire des résultats erronés ou trompeurs : inventer des faits et des sources (hallucinations), aller dans le sens de l'utilisateur·ice plutôt que de le corriger ou commettre des erreurs factuelles."},
+  /* Image calée SOUS le bandeau titre : elle remplit toute la zone libre
+     (bord à bord à gauche, à droite et en bas), proportions conservées,
+     rognage minimal, et rien ne passe sous le bandeau.
+     `bpos` recadre si le sujet n'est pas centré : "top", "bottom", "50% 30%"… */
+  {n:16, lot:3, band:true, bb:"0mm", bpos:"center",
+   old:15, oldT:"Impact environnemental",
+   t:"Impact environnemental",
+   v:"L'entraînement et l'utilisation des systèmes d'IA reposent sur des centres de données toujours plus nombreux et plus gourmands en électricité, en eau et en ressources minières. Leur consommation peut entrer en compétition avec celle des habitant·es proches et polluer leur environnement."},
+  {n:17, lot:3, old:16, oldT:"Affaiblissement des compétences humaines",
+   t:"Affaiblissement des compétences humaines",
+   v:"Plus les IA deviennent performantes, plus nous sommes tentés de leur confier nos tâches : calculer, écrire, réfléchir à notre place. À force, nous risquons de perdre certaines de nos capacités et notre esprit critique, comme un muscle qui ne travaille plus."},
+  {n:18, lot:3, old:17, oldT:"Dégradation de la santé mentale",
+   t:"Dégradation de la santé mentale",
+   v:"Plusieurs effets de l'IA pèsent sur la santé mentale, surtout celle des plus jeunes. Les contenus personnalisés, conçus pour retenir l'attention, rendent accros. Les chatbots créent une dépendance émotionnelle : certaines personnes s'y attachent au point d'en souffrir quand le système change ou disparaît. À force de parler à des IA plutôt qu'à de vraies personnes, le lien social s'érode."},
+  {n:19, lot:3, nat:true, old:18, oldT:"Perpétuation des biais et des discriminations",
+   t:"Perpétuation des biais et des discriminations",
+   v:"Les systèmes d'IA ont tendance à refléter les opinions et préjugés de leurs données d'entraînement."},
+  /* SCISSION de l'ancienne carte 19 « Usage malveillant et cyberattaques » */
+  {n:20, lot:3, old:19, oldT:"Usage malveillant et cyberattaques",
+   t:"Usage malveillant",
+   v:"Des acteurs malveillants peuvent détourner l'IA pour nuire. Même sans les compétences d'experts ou les moyens d'un État, elle permet d'automatiser et de multiplier les attaques basées sur la manipulation, l'escroquerie ou la création de faux contenus à grande échelle."},
+  {n:21, lot:3,
+   t:"Cyberattaques",
+   v:"L'IA diminue les compétences nécessaires aux cyberattaques qui exigeaient autrefois des experts ou des États : courriels d'hameçonnage personnalisés en masse, recherche automatisée de failles, écriture de logiciels malveillants. Des cibles aussi sensibles que les hôpitaux, les banques ou les réseaux électriques deviennent ainsi vulnérables."},
+  {n:22, lot:3, band:"contain", bz:0.75, old:20, oldT:"Risques de mésalignement",
+   t:"Risques de mésalignement",
+   v:"Une IA est dite « alignée » quand elle fait réellement ce que ses concepteur·ices veulent qu'elle fasse : poursuivre leurs objectifs, selon leurs valeurs et leurs intentions. Une IA mésalignée a donc des comportements imprévus et/ou indésirables. L'augmentation des capacités des modèles amplifie grandement les conséquences d'un mésalignement."},
+  {n:23, lot:3, band:"contain", bt:-3, bb:"20mm", old:21, oldT:"Risques systémiques",
+   t:"Risques systémiques",
+   v:"Un risque systémique ne touche pas un seul acteur mais l'ensemble du système. L'intégration de l'IA dans la société fragilise les équilibres existants : elle amplifie la concentration des richesses et du pouvoir dans quelques entreprises et nos infrastructures essentielles deviennent dépendantes de systèmes opaques."},
+  {n:24, lot:3, band:true, old:22, oldT:"Déluge de contenus artificiels",
+   t:"Déluge de contenus artificiels",
+   v:"Les contenus générés par IA (textes, images, vidéos) se multiplient plus vite que toute production humaine antérieure. Ce déluge brouille la frontière entre le vrai et le faux : on doute des contenus authentiques autant qu'on croit les contenus fabriqués."},
+  {n:25, lot:3, old:23, oldT:"Bioterrorisme",
+   t:"Bioterrorisme",
+   v:"La création ou la modification de bactéries et de virus pour provoquer intentionnellement des maladies voire pandémies. Les Grands Modèles de Langage rendent accessible à des non-spécialistes la manipulation du vivant."},
+  {n:26, lot:3, old:24, oldT:"Tromperie stratégique",
+   t:"Tromperie stratégique",
+   v:"L'utilisation intentionnelle de comportements ou d'informations mensongères pour induire en erreur un·e utilisateur·ice, dans le but d'atteindre un objectif précis."},
+  {n:27, lot:3, old:25, oldT:"Enracinement des systèmes de contrôle et d'oppression",
+   t:"Enracinement des systèmes de contrôle et d'oppression",
+   v:"La surveillance et la censure à grande échelle sont facilitées par les systèmes d'IA actuels. Des individus pourraient mettre en place un régime totalitaire difficile à renverser en verrouillant les valeurs du système d'IA."},
+  {n:28, lot:3, old:26, oldT:"Systèmes d'armes létales autonomes",
+   t:"Systèmes d'armes létales autonomes",
+   v:"L'automatisation des armes de combat, par exemple via des drones autonomes, permet de rechercher, identifier et cibler des ennemi·es avec peu ou pas de contrôle humain."},
+
+  /* ----- LOT 4 ----- */
+  {n:29, lot:4, band:true, bg:"#000", old:27, oldT:"Intelligence Artificielle Générale (AGI)",
+   t:"Intelligence Artificielle Générale (AGI)",
+   v:"Une Intelligence Artificielle Générale (AGI) est une IA de niveau humain : un système capable d'accomplir la plupart de nos tâches intellectuelles au moins aussi bien que nous. Sa création est l'objectif déclaré des principales entreprises d'IA."},
+  {n:30, lot:4, old:28, oldT:"La course en avant",
+   t:"La course en avant",
+   v:"Plusieurs laboratoires et puissances rivalisent pour construire des IA toujours plus puissantes. La compétition pousse à déployer toujours plus vite, au détriment de la sécurité. Personne ne veut ralentir de peur de laisser la concurrence gagner, c'est un piège collectif."},
+  {n:31, lot:4, band:true, old:29, oldT:"Risques existentiels",
+   t:"Risques existentiels",
+   v:"Menace catastrophique susceptible de compromettre durablement l'avenir de l'humanité, jusqu'à son extinction. De nombreux experts indiquent qu'une IA de niveau humain ou au-delà pourrait en constituer une."},
+  {n:32, lot:4, old:30, oldT:"Perte de contrôle",
+   t:"Perte de contrôle",
+   v:"Des IA suffisamment performantes créent des situations où les humains n'ont plus la capacité de superviser, corriger, arrêter ou réorienter leurs actions. En général, il est très difficile pour un humain de contrôler quelque chose qui réagit plus vite que lui et/ou emploie de meilleures stratégies."},
+  {n:33, lot:4, old:31, oldT:"Superintelligence",
+   t:"Superintelligence",
+   v:"Une IA dont les capacités cognitives dépasseraient très largement celles de l'humanité dans tous les domaines. Plusieurs grandes entreprises affichent explicitement l'objectif de la créer."},
+
+  /* ----- LOT 5 ----- */
+  {n:34, lot:5, fit:0.75, old:32, oldT:"Recherche en sécurité de l'IA",
+   t:"Recherche en sécurité de l'IA",
+   v:"Ensemble de travaux visant à rendre les systèmes d'IA fiables et contrôlables : mieux aligner leurs objectifs sur les nôtres, les rendre robustes aux erreurs, comprendre leur fonctionnement, détecter leurs biais. Ces recherches disposent de beaucoup moins de moyens et avancent bien moins vite que les capacités des IA."},
+  {n:35, lot:5, band:true, by:"-30px", old:33, oldT:"Lignes rouges",
+   t:"Lignes rouges",
+   v:"Capacités ou comportements si dangereux qu'une IA ne devrait jamais les franchir. Par exemple : se copier elle-même sur d'autres machines pour échapper à tout contrôle (auto-réplication), améliorer seule ses propres capacités, tromper ses utilisateur·ices, ou aider à fabriquer des armes."},
+  {n:36, lot:5, fit:0.9, zy:"20px", bg:"#000", old:34, oldT:"Moratoire international sur les modèles frontières",
+   t:"Moratoire international sur les modèles frontières",
+   v:"Suspendre l'entraînement des modèles les plus puissants tant que leur sécurité n'est pas démontrée. Une pause mondiale laisserait à la recherche en sécurité et à la régulation le temps de rattraper la course aux capacités."},
+  {n:37, lot:5, band:true, old:35, oldT:"Supervision démocratique",
+   t:"Supervision démocratique",
+   v:"Les décisions qui engagent l'avenir de tous ne devraient pas appartenir à quelques entreprises privées. L'idée : que la trajectoire de l'IA soit sous contrôle public et démocratique."},
+  {n:38, lot:5, old:36, oldT:"Évaluations par des tiers indépendants",
+   t:"Évaluations par des tiers indépendants",
+   v:"Avant déploiement, faire tester les modèles par des organismes indépendants des entreprises qui les conçoivent, comme on certifie un médicament ou un avion. Sans regard extérieur, ce sont les concepteur·ices qui jugent seuls de la sûreté de leurs propres produits."}
+];
+
+  var LOT_NAMES = {
+    1: "L'IA, comment ça marche",
+    2: "Capacités",
+    3: "Risques actuels",
+    4: "Risques existentiels",
+    5: "Solutions"
+  };
+
+  var BADGE_BIG = '<svg class="introbadge" width="100" height="100" viewBox="0 0 100 100"' +
+    ' preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+    '<circle cx="50" cy="50" r="48" fill="#F7931D"/>' +
+    '<rect x="33" y="28" width="13" height="44" rx="2" fill="#fff"/>' +
+    '<rect x="54" y="28" width="13" height="44" rx="2" fill="#fff"/></svg>';
+
+  var BADGE = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff"/>' +
+    '<rect x="33" y="28" width="13" height="44" rx="2" fill="#F7931D"/>' +
+    '<rect x="54" y="28" width="13" height="44" rx="2" fill="#F7931D"/></svg>';
+
+  var USE_IMAGES = true;   // false dans la version publiée en ligne : pas de dossier img/ à côté
+
+  /* Si un visuel n'est pas trouvé automatiquement, indiquer ici son chemin exact.
+     Exemple : IMG_OVERRIDES = { 9: "img/9 Recommandation.png", 14: "img/deepfake.jpg" }; */
+  var IMG_OVERRIDES = {};
+  var CW = 3200, CH = 2200;
+
+  // Les fichiers de img/ sont en résolution d'impression : plusieurs milliers de
+  // pixels de large, soit une dizaine de mégaoctets décodés chacun. Affichés à
+  // 152 px sur le tableau, ils coûtent cent fois leur prix en mémoire et en
+  // rééchantillonnage à chaque zoom. On en dessine donc une fois une vignette
+  // réduite, et c'est elle qui vit sur le tableau. L'image d'origine ne sert
+  // plus qu'à la fiche agrandie.
+  var THUMB_W = 560, THUMB_RATIO = 1.6;
+
+  // Deux visuels demandent à être vus en entier plutôt que cadrés comme
+  // l'indique la planche : ils occupent toute la zone sous le bandeau titre,
+  // sans rognage. N'affecte aucune autre carte.
+  var VOIR_ENTIER = { 16: true, 19: true };
+
+  var board  = document.getElementById("board");
+  var canvas = document.getElementById("canvas");
+  var svg    = document.getElementById("svg");
+  var layer  = document.getElementById("layer");
+  var stage  = document.getElementById("stage");
+  var toastEl = document.getElementById("toast");
+
+  // les huit participants ; l'animateur n'en fait pas partie et n'a pas de main
+  var NAMES = ["Alix", "Léa", "Marc", "Sofia", "Yanis", "Claire", "Tom", "Nour"];
+  var ME = NAMES[0];              // le participant que l'on incarne en vue participant
+  var OTHERS = NAMES.slice(1);
+  var HAND_MAX = 1;               // un participant ne tient qu'une carte à la fois
+
+  var PLAYABLE = CARDS.filter(function (c) { return !c.intro; });
+
+  var S = {
+    role: "animateur", tool: "move",
+    deck: PLAYABLE.map(function (c) { return c.n; }),
+    hands: {},                  // une main par participant, une carte au plus
+    placed: [], arrows: [], texts: [],
+    counts: {}, pending: null, sel: null, seq: 0,
+    turn: 0,                    // à qui revient la prochaine carte
+    selText: null,              // texte sélectionné, pour sa croix de suppression
+    z: 1, px: 0, py: 0
+  };
+  NAMES.forEach(function (n) { S.counts[n] = 0; S.hands[n] = []; });
+
+  function myHand() { return S.hands[ME]; }
+
+  // le participant qui tient la carte au plus petit numéro, Alix comprise :
+  // sinon sa carte resterait en main et bloquerait la distribution
+  function lowestHolder() {
+    var best = null;
+    NAMES.forEach(function (nm) {
+      if (!S.hands[nm].length) return;
+      if (!best || S.hands[nm][0] < S.hands[best][0]) best = nm;
+    });
+    return best;
+  }
+
+  function meta(n) {
+    for (var i = 0; i < CARDS.length; i++) if (CARDS[i].n === n) return CARDS[i];
+    return null;
+  }
+  function fromDeck(n) { var i = S.deck.indexOf(n); if (i > -1) S.deck.splice(i, 1); }
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toastEl.classList.remove("show"); }, 2600);
+  }
+
+  /* ============ images : mêmes noms de fichiers que la planche ============ */
+
+  function candidates(card) {
+    var list = [], seen = {};
+    function add(p) { if (p && !seen[p]) { seen[p] = 1; list.push(p); } }
+
+    // 1. chemin imposé à la main, s'il y en a un
+    add(IMG_OVERRIDES[card.n]);
+
+    var pairs = [];
+    function push(num, title) { if (num !== undefined && title) pairs.push([num, title]); }
+    push(card.n, card.t);
+    push(card.old, card.oldT);
+    push(card.n, card.oldT);
+
+    function titleVariants(t) {
+      var out = [], uniq = {};
+      var base = [t, t.replace(/’/g, "'"), t.replace(/'/g, "’")];
+      // accents composés (NFC) ou décomposés (NFD) : macOS stocke les noms en NFD
+      base.slice(0).forEach(function (v) {
+        if (!v.normalize) return;
+        base.push(v.normalize("NFC"));
+        base.push(v.normalize("NFD"));
+      });
+      // un serveur comme GitHub Pages distingue les majuscules, contrairement
+      // à un disque Windows ou macOS : on essaie donc aussi d'autres casses
+      base.slice(0).forEach(function (v) {
+        base.push(v.toLowerCase());
+        base.push(v.charAt(0).toLowerCase() + v.slice(1));
+      });
+      base.forEach(function (v) { if (!uniq[v]) { uniq[v] = 1; out.push(v); } });
+      return out;
+    }
+    var EXT_MAIN = ["png", "jpg", "jpeg", "webp"];
+    var EXT_MORE = ["PNG", "JPG", "JPEG", "WEBP", "avif", "AVIF"];
+
+    // 2. les noms attendus : « numéro titre.ext », comme sur la planche
+    pairs.forEach(function (pr) {
+      titleVariants(pr[1]).forEach(function (v) {
+        EXT_MAIN.forEach(function (e) { add("img/" + pr[0] + " " + v + "." + e); });
+      });
+    });
+    // 3. numéro seul
+    [card.n, card.old].forEach(function (num) {
+      if (num === undefined) return;
+      EXT_MAIN.forEach(function (e) { add("img/" + num + "." + e); });
+    });
+
+    // 4. tolérance : séparateur, numéro sur deux chiffres, titre seul, autres extensions
+    var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
+    pairs.forEach(function (pr) {
+      titleVariants(pr[1]).forEach(function (v) {
+        ["-", "_", ""].forEach(function (sep) {
+          EXT_MAIN.forEach(function (e) { add("img/" + pr[0] + sep + v + "." + e); });
+        });
+        EXT_MAIN.forEach(function (e) { add("img/" + pad(pr[0]) + " " + v + "." + e); });
+        EXT_MORE.forEach(function (e) { add("img/" + pr[0] + " " + v + "." + e); });
+        EXT_MAIN.forEach(function (e) { add("img/" + v + "." + e); });
+      });
+    });
+    [card.n, card.old].forEach(function (num) {
+      if (num === undefined) return;
+      EXT_MAIN.forEach(function (e) { add("img/" + pad(num) + "." + e); });
+      EXT_MORE.forEach(function (e) { add("img/" + num + "." + e); });
+    });
+    return list;
+  }
+
+  // résout une fois par carte, puis mémorise (null = aucune image trouvée)
+  function resolve(card, cb) {
+    if (!USE_IMAGES) { cb(null); return; }
+    if (card._src !== undefined) { cb(card._src); return; }
+    if (card._waiting) { card._waiting.push(cb); return; }
+    card._waiting = [cb];
+    var list = candidates(card), i = 0;
+    var probe = new Image();
+    function done(src) {
+      card._src = src;
+      var q = card._waiting; card._waiting = null;
+      q.forEach(function (f) { f(src); });
+    }
+    probe.onload = function () { done(list[i]); };
+    probe.onerror = function () {
+      i++;
+      if (i < list.length) probe.src = list[i];
+      else done(null);
+    };
+    if (!list.length) { done(null); return; }
+    probe.src = list[0];
+  }
+
+  // vignette réduite d'une carte, dessinée une seule fois puis réutilisée
+  function thumbFor(card, cb) {
+    if (card._thumbEl !== undefined) { cb(card._thumbEl); return; }
+    if (card._thumbQ) { card._thumbQ.push(cb); return; }
+    card._thumbQ = [cb];
+
+    function done(el) {
+      card._thumbEl = el;
+      var q = card._thumbQ; card._thumbQ = null;
+      q.forEach(function (f) { f(el); });
+    }
+
+    resolve(card, function (src) {
+      if (!src) { done(null); return; }
+      var im = new Image();
+      im.decoding = "async";
+      im.onerror = function () { done(null); };
+      im.onload = function () {
+        var w = THUMB_W, h = Math.round(THUMB_W / THUMB_RATIO);
+        var cv = document.createElement("canvas");
+        cv.className = "thumb";
+        cv.width = w; cv.height = h;
+        var g = cv.getContext("2d");
+        // les visuels à voir en entier sont contenus, les autres remplissent
+        var whole = !!(card.fit || card.nat || card.band === "contain" || VOIR_ENTIER[card.n]);
+        g.fillStyle = card.bg || (whole ? "#ffffff" : "#0E1412");
+        g.fillRect(0, 0, w, h);
+        var k = whole ? Math.min(w / im.width, h / im.height)
+                      : Math.max(w / im.width, h / im.height);
+        if (whole) k *= 0.94;                       // un peu d'air autour du logo
+        var dw = im.width * k, dh = im.height * k;
+        g.drawImage(im, (w - dw) / 2, (h - dh) / 2, dw, dh);
+        done(cv);                                   // le grand bitmap n'est plus retenu
+      };
+      im.src = src;
+    });
+  }
+
+  /* ============ carte 0, toujours visible ============ */
+
+  (function initIntro() {
+    var body = document.getElementById("introBody");
+    meta(0).v.split("\n").forEach(function (para) {
+      var el = document.createElement("p");
+      el.textContent = para;
+      body.appendChild(el);
+    });
+    // visuel du bandeau : celui de la carte « Moratoire international sur les modèles
+    // frontières » (fichier nommé avec l'ancienne numérotation, 34)
+    var thumb = document.getElementById("introThumb");
+    thumb.innerHTML = BADGE_BIG;
+    resolve(meta(36), function (src) {
+      if (!src) return;
+      thumb.innerHTML = "";
+      var im = document.createElement("img");
+      im.src = src; im.alt = "";
+      thumb.appendChild(im);
+    });
+  })();
+
+  /* ============ zoom et déplacement ============ */
+
+  canvas.style.width = CW + "px";
+  canvas.style.height = CH + "px";
+  var ZMIN = 0.2, ZMAX = 1.6;
+
+  function clampPan() {
+    var bw = board.clientWidth, bh = board.clientHeight;
+    var sw = CW * S.z, sh = CH * S.z;
+    S.px = sw <= bw ? (bw - sw) / 2 : Math.min(0, Math.max(bw - sw, S.px));
+    S.py = sh <= bh ? (bh - sh) / 2 : Math.min(0, Math.max(bh - sh, S.py));
+  }
+  function applyView() {
+    clampPan();
+    canvas.style.transform = "translate(" + S.px + "px," + S.py + "px) scale(" + S.z + ")";
+    markMoving();
+    queueCull();
+    document.getElementById("zVal").textContent = Math.round(S.z * 100) + " %";
+    document.getElementById("zIn").disabled = S.z >= ZMAX - 1e-6;
+    document.getElementById("zOut").disabled = S.z <= ZMIN + 1e-6;
+  }
+  function zoomTo(z, bx, by) {
+    z = Math.max(ZMIN, Math.min(ZMAX, z));
+    if (Math.abs(z - S.z) < 1e-6) return;
+    if (bx === undefined) { bx = board.clientWidth / 2; by = board.clientHeight / 2; }
+    var cx = (bx - S.px) / S.z, cy = (by - S.py) / S.z;
+    S.z = z; S.px = bx - cx * z; S.py = by - cy * z;
+    applyView();
+  }
+  function toCanvas(x, y) {
+    var r = board.getBoundingClientRect();
+    return { x: (x - r.left - S.px) / S.z, y: (y - r.top - S.py) / S.z };
+  }
+  function visibleRect() {
+    return { x: -S.px / S.z, y: -S.py / S.z, w: board.clientWidth / S.z, h: board.clientHeight / S.z };
+  }
+
+  document.getElementById("zIn").addEventListener("click", function () { zoomTo(S.z * 1.25); });
+  document.getElementById("zOut").addEventListener("click", function () { zoomTo(S.z / 1.25); });
+  document.getElementById("zFit").addEventListener("click", function () {
+    S.z = Math.max(ZMIN, Math.min(ZMAX, Math.min(board.clientWidth / CW, board.clientHeight / CH)));
+    S.px = 0; S.py = 0; applyView();
+    toast("Tout le tableau à l'écran, " + Math.round(S.z * 100) + " %.");
+  });
+  var wheelZoom = false;
+  board.addEventListener("wheel", function (e) {
+    // la molette zoome si l'option est active, en plein écran, ou avec Ctrl / Cmd
+    if (!wheelZoom && !stage.classList.contains("fs") && !e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    var r = board.getBoundingClientRect();
+    zoomTo(S.z * (e.deltaY < 0 ? 1.06 : 1 / 1.06), e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+
+  document.getElementById("zWheel").addEventListener("click", function () {
+    wheelZoom = !wheelZoom;
+    this.setAttribute("aria-pressed", String(wheelZoom));
+    toast(wheelZoom ? "La molette zoome le tableau."
+                    : "La molette fait défiler la page. Ctrl + molette zoome toujours.");
+  });
+
+  document.getElementById("fs").addEventListener("click", function () {
+    var on = stage.classList.toggle("fs");
+    this.setAttribute("aria-pressed", String(on));
+    this.textContent = on ? "Quitter le plein écran" : "Plein écran";
+    document.body.style.overflow = on ? "hidden" : "";
+    requestAnimationFrame(function () { applyView(); renderArrows(); });
+  });
+
+  /* ============ rendu ============ */
+
+  function renderCards() {
+    var seen = {};
+    Array.prototype.forEach.call(layer.querySelectorAll(".card"), function (e) { seen[e.dataset.n] = e; });
+
+    S.placed.forEach(function (p) {
+      var el = seen[p.n], m = meta(p.n);
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "card arriving";
+        el.dataset.n = p.n;
+        el.tabIndex = 0;
+        el.innerHTML =
+          '<div class="thumb-none">visuel…</div>' +
+          '<div class="lotdot"></div>' +
+          '<div class="bar"><span class="num"></span><span class="ttl"></span></div>' +
+          '<button class="zoom" aria-label="Ouvrir la carte">⤢</button>';
+        el.querySelector(".num").textContent = m.n;
+        el.querySelector(".ttl").textContent = m.t;
+        var dot = el.querySelector(".lotdot");
+        if (m.lot) { dot.textContent = "LOT " + m.lot; dot.style.color = "var(--lot" + m.lot + ")"; }
+        else dot.remove();
+        var zb = el.querySelector(".zoom");
+        zb.addEventListener("pointerdown", function (ev) { ev.stopPropagation(); });
+        zb.addEventListener("click", function (ev) { ev.stopPropagation(); openCard(p.n); });
+        el.addEventListener("pointerdown", onCardDown);
+        el.addEventListener("keydown", onCardKey);
+        layer.appendChild(el);
+        p._el = el;
+        setTimeout(function () { el.classList.remove("arriving"); }, 700);
+
+        thumbFor(m, function (node) {
+          var ph = el.querySelector(".thumb-none");
+          if (!ph) return;
+          if (!node) { ph.textContent = USE_IMAGES ? "visuel à venir" : "visuel : version locale"; return; }
+          ph.replaceWith(node);
+        });
+      } else {
+        delete seen[p.n];
+        p._el = el;
+      }
+      el.style.left = p.x + "px";
+      el.style.top = p.y + "px";
+      el.classList.toggle("pending", S.pending === p.n);
+    });
+
+    Object.keys(seen).forEach(function (k) { seen[k].remove(); });
+    cull();
+  }
+
+  function rectOf(n) {
+    var el = layer.querySelector('.card[data-n="' + n + '"]');
+    if (!el) return null;
+    return { cx: el.offsetLeft + el.offsetWidth / 2, cy: el.offsetTop + el.offsetHeight / 2,
+             hw: el.offsetWidth / 2, hh: el.offsetHeight / 2 };
+  }
+  function edge(r, dx, dy) {
+    var ax = Math.abs(dx), ay = Math.abs(dy), t = Infinity;
+    if (ax > 1e-6) t = Math.min(t, r.hw / ax);
+    if (ay > 1e-6) t = Math.min(t, r.hh / ay);
+    if (t === Infinity) t = 0;
+    return { x: r.cx + dx * t, y: r.cy + dy * t };
+  }
+  function geom(a) {
+    var ra = rectOf(a.a), rb = rectOf(a.b);
+    if (!ra || !rb) return null;
+    var dx = rb.cx - ra.cx, dy = rb.cy - ra.cy, len = Math.hypot(dx, dy);
+    if (len < 1) return null;
+    var ux = dx / len, uy = dy / len, gap = 4;
+    var p1 = edge(ra, ux, uy), p2 = edge(rb, -ux, -uy);
+    var x1 = p1.x + ux * gap, y1 = p1.y + uy * gap;
+    var x2 = p2.x - ux * gap, y2 = p2.y - uy * gap;
+    var L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 6) return null;
+    var bow = Math.min(20, L * 0.09) * (a.id % 2 ? 1 : -1);
+    var nx = -(y2 - y1) / L, ny = (x2 - x1) / L;
+    var cx = (x1 + x2) / 2 + nx * bow, cy = (y1 + y2) / 2 + ny * bow;
+    var off = bow >= 0 ? 20 : -20;
+    return { x1: x1, y1: y1, x2: x2, y2: y2, cx: cx, cy: cy,
+             mx: 0.25 * x1 + 0.5 * cx + 0.25 * x2 + nx * off,
+             my: 0.25 * y1 + 0.5 * cy + 0.25 * y2 + ny * off };
+  }
+  function head(tx, ty, dx, dy) {
+    var L = 11, W = 6.5, n = Math.hypot(dx, dy) || 1;
+    var ux = dx / n, uy = dy / n, bx = tx - ux * L, by = ty - uy * L;
+    return "M" + tx + "," + ty + " L" + (bx - uy * W) + "," + (by + ux * W) +
+           " L" + (bx + uy * W) + "," + (by - ux * W) + " Z";
+  }
+  function sv(tag, at) {
+    var e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    Object.keys(at).forEach(function (k) { e.setAttribute(k, at[k]); });
+    return e;
+  }
+
+  function renderArrows() {
+    svg.textContent = "";
+    Array.prototype.forEach.call(layer.querySelectorAll(".alabel, .del"), function (n) { n.remove(); });
+
+    S.arrows.forEach(function (a) {
+      var g = geom(a);
+      if (!g) return;
+      var on = S.sel === a.id, col = on ? "#FBB65C" : "#EDE8DC";
+      var d = "M" + g.x1 + "," + g.y1 + " Q" + g.cx + "," + g.cy + " " + g.x2 + "," + g.y2;
+      var grp = sv("g", {});
+      grp.appendChild(sv("path", { d: d, fill: "none", stroke: col,
+        "stroke-width": on ? 3 : 2.2, "stroke-linecap": "round", opacity: .95 }));
+      grp.appendChild(sv("path", { d: head(g.x2, g.y2, g.x2 - g.cx, g.y2 - g.cy), fill: col }));
+      if (a.bi) grp.appendChild(sv("path", { d: head(g.x1, g.y1, g.x1 - g.cx, g.y1 - g.cy), fill: col }));
+      var hit = sv("path", { d: d, fill: "none", stroke: "transparent", "stroke-width": 18, "class": "grab" });
+      hit.addEventListener("click", function (e) {
+        e.stopPropagation();
+        S.sel = (S.sel === a.id) ? null : a.id;
+        renderArrows();
+        if (S.sel === a.id) {
+          var l = layer.querySelector('.alabel[data-id="' + a.id + '"]');
+          if (l) l.focus();
+        }
+      });
+      grp.appendChild(hit);
+      svg.appendChild(grp);
+
+      if (a.label || on) {
+        var lab = document.createElement("div");
+        lab.className = "alabel";
+        lab.dataset.id = a.id;
+        lab.contentEditable = "true";
+        lab.spellcheck = false;
+        lab.textContent = a.label || "";
+        lab.style.left = g.mx + "px";
+        lab.style.top = g.my + "px";
+        lab.addEventListener("input", function () { a.label = lab.textContent; });
+        lab.addEventListener("blur", function () {
+          a.label = lab.textContent.trim();
+          if (!a.label && S.sel !== a.id) renderArrows();
+        });
+        dragText(lab, null);
+        layer.appendChild(lab);
+      }
+      if (on) {
+        var b = document.createElement("button");
+        b.className = "del"; b.textContent = "✕";
+        b.setAttribute("aria-label", "Supprimer la flèche");
+        b.style.left = g.mx + "px"; b.style.top = (g.my + 30) + "px";
+        b.addEventListener("click", function (e) {
+          e.stopPropagation();
+          S.arrows = S.arrows.filter(function (x) { return x.id !== a.id; });
+          S.sel = null; renderArrows(); toast("Flèche supprimée.");
+        });
+        layer.appendChild(b);
+      }
+    });
+  }
+
+  function removeText(id) {
+    S.texts = S.texts.filter(function (x) { return x.id !== id; });
+    if (S.selText === id) S.selText = null;
+    renderTexts();
+  }
+
+  function renderTexts() {
+    var seen = {};
+    Array.prototype.forEach.call(layer.querySelectorAll(".btext"), function (e) { seen[e.dataset.id] = e; });
+    Array.prototype.forEach.call(layer.querySelectorAll(".tdel"), function (e) { e.remove(); });
+
+    S.texts.forEach(function (t) {
+      var e = seen[t.id];
+      if (!e) {
+        e = document.createElement("div");
+        e.className = "btext"; e.dataset.id = t.id;
+        e.contentEditable = "true"; e.spellcheck = false;
+        e.textContent = t.v;
+        e.addEventListener("input", function () { t.v = e.textContent; });
+        e.addEventListener("blur", function () {
+          t.v = e.textContent;
+          // un texte laissé vide disparaît de lui-même
+          if (!t.v.trim()) setTimeout(function () { removeText(t.id); }, 120);
+        });
+        dragText(e, t);
+        layer.appendChild(e);
+      } else delete seen[t.id];
+      e.style.left = t.x + "px";
+      e.style.top = t.y + "px";
+
+      if (S.selText === t.id) {
+        var b = document.createElement("button");
+        b.className = "tdel";
+        b.textContent = "✕";
+        b.setAttribute("aria-label", "Supprimer ce texte");
+        b.title = "Supprimer ce texte";
+        b.style.left = (t.x + e.offsetWidth / 2) + "px";
+        b.style.top = (t.y + e.offsetHeight + 14) + "px";
+        // pointerdown plutôt que click : sinon le blur du texte passe avant
+        b.addEventListener("pointerdown", function (ev) {
+          ev.preventDefault(); ev.stopPropagation();
+          removeText(t.id);
+          toast("Texte supprimé.");
+        });
+        layer.appendChild(b);
+      }
+    });
+
+    Object.keys(seen).forEach(function (k) { seen[k].remove(); });
+  }
+
+  function renderSide() {
+    document.getElementById("deckN").textContent = S.deck.length;
+    document.getElementById("deckBlock").style.display = S.role === "animateur" ? "" : "none";
+    document.getElementById("handBlock").style.display = S.role === "animateur" ? "none" : "";
+    var next = nextName();
+    var blocked = S.hands[next].length >= HAND_MAX;
+    var one = document.getElementById("dealOne");
+    one.textContent = "Distribuer à " + next;
+    one.disabled = !S.deck.length || blocked;
+    one.title = blocked ? next + " tient déjà une carte" : "Prochaine carte pour " + next;
+    var note = document.getElementById("dealNote");
+    note.hidden = !blocked;
+    note.textContent = blocked
+      ? next + " tient déjà une carte : elle doit la poser avant d'en recevoir une autre."
+      : "";
+
+    // bouton de simulation : il nomme qui va jouer et quelle carte
+    var sim = document.getElementById("sim");
+    var holder = lowestHolder();
+    sim.disabled = !holder;
+    sim.textContent = holder
+      ? "Faire jouer " + holder + " (" + S.hands[holder][0] + ")"
+      : "Personne ne tient de carte";
+    sim.title = holder
+      ? holder + " pose la carte " + S.hands[holder][0] + ", le plus petit numéro en main"
+      : "";
+    document.getElementById("dealAll").disabled = !S.deck.length;
+
+    var h = document.getElementById("hand");
+    h.textContent = "";
+    myHand().forEach(function (n) {
+      var m = meta(n);
+      var row = document.createElement("div");
+      row.className = "hrow";
+
+      var b = document.createElement("button");
+      b.className = "hcard";
+      b.title = "Poser sur le tableau";
+      b.innerHTML = '<span class="hn"></span><span class="ht"></span>';
+      b.querySelector(".hn").textContent = m.n;
+      b.querySelector(".ht").textContent = m.t;
+      b.addEventListener("click", function () { placeFromHand(n); });
+
+      var z = document.createElement("button");
+      z.className = "hzoom";
+      z.textContent = "⤢";
+      z.title = "Voir la carte en grand";
+      z.setAttribute("aria-label", "Voir la carte " + m.n + " en grand");
+      z.addEventListener("click", function () { openCard(n); });
+
+      row.appendChild(b);
+      row.appendChild(z);
+      h.appendChild(row);
+    });
+    document.getElementById("handEmpty").style.display = myHand().length ? "none" : "";
+
+    var r = document.getElementById("roster");
+    r.textContent = "";
+    NAMES.forEach(function (nm) {
+      var row = document.createElement("div");
+      row.className = "rrow";
+      row.innerHTML = '<span class="who"><span class="dot"></span><span class="nm"></span></span><span class="n"></span>';
+      var isMe = nm === ME && S.role === "participant";
+      row.querySelector(".nm").textContent = isMe ? nm + " (vous)" : nm;
+      if (isMe) row.querySelector(".nm").style.color = "var(--chalk)";
+      var held = S.hands[nm][0];
+      var cell = row.querySelector(".n");
+      if (held !== undefined) {
+        cell.textContent = "carte " + held;
+        cell.style.color = "var(--orange-soft)";
+      } else {
+        cell.textContent = S.counts[nm];
+        cell.style.color = "";
+      }
+      r.appendChild(row);
+    });
+  }
+
+  (function initLotKey() {
+    var k = document.getElementById("lotkey");
+    [1, 2, 3, 4, 5].forEach(function (i) {
+      var d = document.createElement("div");
+      d.innerHTML = '<i></i><span></span>';
+      d.querySelector("i").style.background = "var(--lot" + i + ")";
+      d.querySelector("span").textContent = i + " · " + LOT_NAMES[i];
+      d.querySelector("span").style.color = "var(--chalk-dim)";
+      k.appendChild(d);
+    });
+  })();
+
+  // Zoomé, la plupart des cartes sont hors de la fenêtre : les masquer évite
+  // au navigateur de les repeindre à chaque changement de zoom. visibility
+  // conserve la géométrie, donc les flèches restent justes.
+  var CARD_W = 160, CARD_H = 155, CULL_M = 260;
+  function cull() {
+    var v = visibleRect();
+    S.placed.forEach(function (p) {
+      if (!p._el) return;
+      var out = p.x > v.x + v.w + CULL_M || p.x + CARD_W < v.x - CULL_M ||
+                p.y > v.y + v.h + CULL_M || p.y + CARD_H < v.y - CULL_M;
+      if (out !== !!p._off) {
+        p._off = out;
+        p._el.style.visibility = out ? "hidden" : "";
+      }
+    });
+  }
+  var cullRaf = 0;
+  function queueCull() {
+    if (cullRaf) return;
+    cullRaf = requestAnimationFrame(function () { cullRaf = 0; cull(); });
+  }
+
+  // pendant un glissement, inutile de reconstruire les flèches plus d'une
+  // fois par image affichée
+  var arrowRaf = 0;
+  function queueArrows() {
+    if (arrowRaf) return;
+    arrowRaf = requestAnimationFrame(function () { arrowRaf = 0; renderArrows(); });
+  }
+
+  // la couche composite n'est demandée que le temps du mouvement
+  var movingTimer = 0;
+  function markMoving() {
+    canvas.classList.add("moving");
+    clearTimeout(movingTimer);
+    movingTimer = setTimeout(function () { canvas.classList.remove("moving"); }, 400);
+  }
+
+  function render() { renderCards(); renderTexts(); renderArrows(); renderSide(); }
+
+  /* ============ interactions ============ */
+
+  var drag = null;
+
+  function onCardDown(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    var el = e.currentTarget, n = parseInt(el.dataset.n, 10);
+
+    if (S.tool === "arrow" || S.tool === "arrowBi") {
+      e.preventDefault();
+      if (S.pending === null) { S.pending = n; toast("Départ : carte " + n + ". Cliquez la carte d'arrivée."); }
+      else if (S.pending === n) S.pending = null;
+      else {
+        S.arrows.push({ id: ++S.seq, a: S.pending, b: n, bi: S.tool === "arrowBi", label: "" });
+        S.pending = null;
+        toast("Flèche tracée. Cliquez le trait pour écrire dessus.");
+      }
+      renderCards(); renderArrows();
+      return;
+    }
+
+    var p = null;
+    for (var i = 0; i < S.placed.length; i++) if (S.placed[i].n === n) p = S.placed[i];
+    if (!p) return;
+    if (S.sel !== null) { S.sel = null; renderArrows(); }
+    var c0 = toCanvas(e.clientX, e.clientY);
+    drag = { el: el, p: p, dx: c0.x - p.x, dy: c0.y - p.y };
+    el.classList.add("dragging");
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  }
+
+  board.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    var c = toCanvas(e.clientX, e.clientY);
+    drag.p.x = Math.max(0, Math.min(c.x - drag.dx, CW - drag.el.offsetWidth));
+    drag.p.y = Math.max(0, Math.min(c.y - drag.dy, CH - drag.el.offsetHeight));
+    drag.el.style.left = drag.p.x + "px";
+    drag.el.style.top = drag.p.y + "px";
+    queueArrows();
+  });
+  function endDrag() { if (drag) { drag.el.classList.remove("dragging"); drag = null; } }
+  board.addEventListener("pointerup", endDrag);
+  board.addEventListener("pointercancel", endDrag);
+
+  function onCardKey(e) {
+    var n = parseInt(e.currentTarget.dataset.n, 10), p = null;
+    for (var i = 0; i < S.placed.length; i++) if (S.placed[i].n === n) p = S.placed[i];
+    if (!p) return;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCard(n); return; }
+    var st = e.shiftKey ? 24 : 8, moved = true;
+    if (e.key === "ArrowLeft") p.x -= st;
+    else if (e.key === "ArrowRight") p.x += st;
+    else if (e.key === "ArrowUp") p.y -= st;
+    else if (e.key === "ArrowDown") p.y += st;
+    else moved = false;
+    if (moved) { e.preventDefault(); renderCards(); renderArrows(); }
+  }
+
+  function dragText(node, obj) {
+    node.addEventListener("pointerdown", function (e) {
+      e.stopPropagation();
+      if (document.activeElement === node) return;
+      e.preventDefault();
+      var sx = e.clientX, sy = e.clientY, moved = false;
+      var c0 = toCanvas(e.clientX, e.clientY);
+      var ox = c0.x - parseFloat(node.style.left || 0);
+      var oy = c0.y - parseFloat(node.style.top || 0);
+      function mv(ev) {
+        if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+        if (!moved) return;
+        var c = toCanvas(ev.clientX, ev.clientY);
+        node.style.left = (c.x - ox) + "px";
+        node.style.top = (c.y - oy) + "px";
+        if (obj) { obj.x = c.x - ox; obj.y = c.y - oy; }
+      }
+      function up() {
+        window.removeEventListener("pointermove", mv);
+        window.removeEventListener("pointerup", up);
+        if (moved) return;
+        if (obj) { S.selText = obj.id; renderTexts(); }
+        node.focus();
+        try {
+          var rg = document.caretRangeFromPoint ? document.caretRangeFromPoint(sx, sy) : null;
+          if (rg && node.contains(rg.startContainer)) {
+            var s = window.getSelection(); s.removeAllRanges(); s.addRange(rg);
+          }
+        } catch (err) {}
+      }
+      window.addEventListener("pointermove", mv);
+      window.addEventListener("pointerup", up);
+    });
+  }
+
+  board.addEventListener("pointerdown", function (e) {
+    if (e.target !== board && e.target !== svg && e.target !== layer && e.target !== canvas) return;
+    if (S.tool === "text") {
+      // sans cela, le comportement par défaut du clic reprend le focus
+      // juste après, le texte se vide et disparaît aussitôt
+      e.preventDefault();
+      var c = toCanvas(e.clientX, e.clientY);
+      var t = { id: "t" + (++S.seq), x: c.x, y: c.y, v: "" };
+      S.texts.push(t);
+      S.selText = t.id;
+      renderTexts();
+      var node = layer.querySelector('.btext[data-id="' + t.id + '"]');
+      if (node) node.focus();
+      return;
+    }
+    var sx = e.clientX, sy = e.clientY, x0 = S.px, y0 = S.py, panned = false;
+    function mv(ev) {
+      if (!panned && Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) < 4) return;
+      panned = true; board.classList.add("panning");
+      S.px = x0 + (ev.clientX - sx); S.py = y0 + (ev.clientY - sy);
+      applyView();
+    }
+    function up() {
+      window.removeEventListener("pointermove", mv);
+      window.removeEventListener("pointerup", up);
+      board.classList.remove("panning");
+      if (panned) return;
+      if (S.pending !== null) { S.pending = null; renderCards(); }
+      if (S.sel !== null) { S.sel = null; renderArrows(); }
+      if (S.selText !== null) { S.selText = null; renderTexts(); }
+    }
+    window.addEventListener("pointermove", mv);
+    window.addEventListener("pointerup", up);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var editing = document.activeElement &&
+      (document.activeElement.isContentEditable || document.activeElement.tagName === "INPUT");
+    if (editing) return;
+    if ((e.key === "Delete" || e.key === "Backspace") && S.sel !== null) {
+      e.preventDefault();
+      S.arrows = S.arrows.filter(function (x) { return x.id !== S.sel; });
+      S.sel = null; renderArrows();
+    }
+    if (e.key === "Escape") {
+      if (document.getElementById("modal").classList.contains("open")) closeModal();
+      else if (stage.classList.contains("fs")) document.getElementById("fs").click();
+    }
+  });
+
+  /* ============ distribution ============ */
+
+  function nextName() { return NAMES[S.turn % NAMES.length]; }
+
+  function spot() {
+    var cw = 152, ch = 128, gx = 34, gy = 30, vis = visibleRect();
+    function scan(x0, y0, w, h) {
+      var cols = Math.max(1, Math.floor((w - 20) / (cw + gx)));
+      var rows = Math.max(1, Math.floor((h - 16) / (ch + gy)));
+      for (var i = 0; i < cols * rows; i++) {
+        var x = Math.round(x0 + 14 + (i % cols) * (cw + gx));
+        var y = Math.round(y0 + 12 + Math.floor(i / cols) * (ch + gy));
+        if (x < 0 || y < 0 || x > CW - cw || y > CH - ch) continue;
+        var clash = S.placed.some(function (q) {
+          return Math.abs(q.x - x) < cw - 20 && Math.abs(q.y - y) < ch - 20;
+        });
+        if (!clash) return { x: x, y: y };
+      }
+      return null;
+    }
+    return scan(Math.max(0, vis.x), Math.max(0, vis.y), Math.min(vis.w, CW), Math.min(vis.h, CH))
+        || scan(0, 0, CW, CH)
+        || { x: Math.random() * (CW - cw), y: Math.random() * (CH - ch) };
+  }
+  function placeAt(n) { var s = spot(); S.placed.push({ n: n, x: s.x, y: s.y }); }
+
+  function placeFromHand(n) {
+    var i = myHand().indexOf(n);
+    if (i < 0) return;
+    myHand().splice(i, 1);
+    placeAt(n); render();
+    toast("Carte " + n + " posée.");
+  }
+
+  document.getElementById("dealOne").addEventListener("click", function () {
+    if (!S.deck.length) return;
+    var who = nextName();
+    if (S.hands[who].length >= HAND_MAX) {
+      toast(who + " tient déjà une carte : elle doit être posée d'abord.");
+      return;
+    }
+    var n = S.deck.shift();
+    S.turn = (S.turn + 1) % NAMES.length;   // au suivant, dans l'ordre
+    S.counts[who]++;
+    S.hands[who].push(n);
+    render();
+    toast(who === ME
+      ? (S.role === "participant" ? "Vous recevez la carte " + n + "."
+                                  : ME + " reçoit la carte " + n + ".")
+      : who + " reçoit la carte " + n + " et la garde en main.");
+  });
+
+  document.getElementById("dealAll").addEventListener("click", function () {
+    if (!S.deck.length) return;
+    // on sert ceux qui ont la main libre : personne ne tient plus d'une carte
+    var free = NAMES.filter(function (nm) { return S.hands[nm].length < HAND_MAX; });
+    var give = Math.min(free.length, S.deck.length);
+    if (!give) { toast("Tous les participants tiennent déjà une carte."); return; }
+    var served = free.slice(0, give);
+    var drawn = S.deck.splice(0, give);
+    served.forEach(function (nm, i) {
+      S.counts[nm]++;
+      S.hands[nm].push(drawn[i]);
+    });
+    S.turn = 0;                              // le tour repart du premier participant
+    render();
+    toast(give === NAMES.length
+      ? "Une carte part vers chacun des " + give + " participants."
+      : "Une carte part vers " + give + " participants ; les autres tiennent déjà la leur.");
+  });
+
+  // fait poser sa carte au participant fictif qui tient le plus petit numéro
+  document.getElementById("sim").addEventListener("click", function () {
+    var who = lowestHolder();
+    if (!who) { toast("Aucun participant ne tient de carte."); return; }
+    var n = S.hands[who].shift();
+    placeAt(n);
+    render();
+    toast(who + " pose la carte " + n + ".");
+  });
+
+  /* ============ outils et rôles ============ */
+
+  var tools = { move: "tMove", arrow: "tArrow", arrowBi: "tArrowBi", text: "tText" };
+  Object.keys(tools).forEach(function (k) {
+    document.getElementById(tools[k]).addEventListener("click", function () {
+      S.tool = k; S.pending = null; S.sel = null;
+      Object.keys(tools).forEach(function (j) {
+        document.getElementById(tools[j]).setAttribute("aria-pressed", String(j === k));
+      });
+      board.classList.toggle("crosshair", k !== "move");
+      renderCards(); renderArrows();
+    });
+  });
+
+  var roles = { animateur: "roleA", participant: "roleP" };
+  Object.keys(roles).forEach(function (k) {
+    document.getElementById(roles[k]).addEventListener("click", function () {
+      S.role = k;
+      Object.keys(roles).forEach(function (j) {
+        document.getElementById(roles[j]).setAttribute("aria-pressed", String(j === k));
+      });
+      renderSide();
+      toast(k === "animateur"
+        ? "Vue animateur : la pioche et le rythme, sans main."
+        : "Vue participant : la main de " + ME + " et le tableau.");
+    });
+  });
+
+  /* ============ fiche carte ============ */
+
+  var modal = document.getElementById("modal");
+  var mbody = document.getElementById("mbody");
+  var mflip = document.getElementById("mflip");
+  var open = { n: null, face: "recto" };
+
+  function lotChip(m) {
+    if (!m.lot) return "";
+    return '<div class="rlot"><span class="lw">LOT</span><span class="ln">' + m.lot + '</span>' + BADGE + '</div>';
+  }
+
+  // hauteur réelle du bandeau titre : le haut de l'image se cale dessus
+  function syncBand(card, box) {
+    function measure() {
+      var band = card.querySelector(".rband");
+      if (band && band.offsetHeight) {
+        box.style.setProperty("--bandtop", band.offsetHeight + "px");
+      }
+    }
+    measure();
+    requestAnimationFrame(measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  }
+
+  function paint() {
+    var m = meta(open.n);
+    document.getElementById("mtitle").textContent =
+      (open.face === "recto" ? "Recto" : "Verso") + " de la carte " + m.n;
+    mbody.textContent = "";
+
+    if (open.face === "recto") {
+      var r = document.createElement("div");
+      r.className = "rcard";
+      r.style.containerType = "inline-size";
+      r.innerHTML =
+        '<div class="rimg none"><span>zone image</span></div>' +
+        '<div class="rband"><div class="rtitle"></div></div>' +
+        '<div class="rnum"><span></span></div>' + lotChip(m);
+      r.querySelector(".rtitle").textContent = m.t;
+      r.querySelector(".rnum span").textContent = m.n;
+      mbody.appendChild(r);
+      resolve(m, function (src) {
+        if (!src || open.n !== m.n || open.face !== "recto") return;
+        var box = r.querySelector(".rimg");
+        if (!box) return;
+        box.classList.remove("none");
+        box.textContent = "";
+
+        // on reprend le cadrage décidé sur la planche d'impression
+        if (VOIR_ENTIER[m.n]) {
+          box.classList.add("mode-band", "is-zone", "is-contain");
+          box.style.setProperty("--bb", "0%");
+          syncBand(r, box);
+        } else if (m.fit) {
+          box.classList.add("mode-fit");
+          box.style.setProperty("--z", m.fit);
+        } else if (m.band) {
+          box.classList.add("mode-band");
+          if (m.band === "contain") box.classList.add("is-contain");
+          if (m.bb !== undefined) {
+            box.classList.add("is-zone");
+            // bb est exprimé en mm sur une carte de 105 mm de haut
+            box.style.setProperty("--bb", (parseFloat(m.bb) || 0) / 105 * 100 + "%");
+          }
+          syncBand(r, box);
+        } else if (m.nat) {
+          box.classList.add("mode-nat");
+        }
+        if (m.bg) box.style.setProperty("--imgbg", m.bg);
+
+        var im = document.createElement("img");
+        im.decoding = "async";
+        im.src = src; im.alt = "";
+        box.appendChild(im);
+      });
+    } else {
+      var v = document.createElement("div");
+      v.className = "vcard";
+      v.innerHTML = '<div class="vghost"></div><div class="vin">' +
+        '<div class="vtitle"></div><div class="vrule"></div><div class="vtext"></div></div>' + lotChip(m);
+      v.querySelector(".vghost").textContent = m.n;
+      v.querySelector(".vtitle").textContent = m.t;
+      var tx = v.querySelector(".vtext");
+      m.v.split("\n").forEach(function (para) {
+        var p = document.createElement("p");
+        p.textContent = para;
+        tx.appendChild(p);
+      });
+      mbody.appendChild(v);
+    }
+  }
+
+  function openCard(n) {
+    open.n = n; open.face = "recto";
+    modal.classList.add("open");   // avant paint : sinon le bandeau mesure 0 px
+    paint();
+    mflip.focus();
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+    // on libère la grande image : elle peut peser plusieurs mégaoctets décodée
+    mbody.textContent = "";
+    open.n = null;
+  }
+
+  mflip.addEventListener("click", function () {
+    open.face = open.face === "recto" ? "verso" : "recto";
+    paint();
+  });
+  document.getElementById("mclose").addEventListener("click", closeModal);
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+
+  /* ============ départ ============ */
+
+  fromDeck(1); S.placed.push({ n: 1, x: 40,  y: 34 });
+  fromDeck(2); S.placed.push({ n: 2, x: 330, y: 60 });
+  fromDeck(3); S.placed.push({ n: 3, x: 620, y: 330 });
+  fromDeck(4); S.hands[ME].push(4); S.counts[ME] = 1;
+  S.turn = 1;                    // Alix tient la carte 4 : la suivante est pour Léa
+  S.arrows.push({ id: ++S.seq, a: 2, b: 1, bi: false, label: "alimente" });
+  S.arrows.push({ id: ++S.seq, a: 1, b: 3, bi: false, label: "rend possible" });
+
+  // on cherche le visuel de chaque carte, puis on signale ceux qui n'ont pas été trouvés
+  (function auditImages() {
+    if (!USE_IMAGES) return;
+    // la carte 0 n'a pas de visuel propre : le bandeau utilise celui de la carte 36
+    var audited = CARDS.filter(function (c) { return !c.intro; });
+    var missing = [], left = audited.length;
+    audited.forEach(function (c) {
+      resolve(c, function (src) {
+        if (!src) missing.push(c);
+        if (--left) return;
+        if (!missing.length) return;
+        missing.sort(function (a, b) { return a.n - b.n; });
+        var box = document.getElementById("diag");
+        document.getElementById("diagSum").textContent =
+          "Visuels non trouvés : cartes " + missing.map(function (c) { return c.n; }).join(", ") +
+          " (cliquer pour voir les noms de fichiers cherchés)";
+        var ul = document.createElement("ul");
+        missing.forEach(function (c) {
+          var li = document.createElement("li");
+          var b = document.createElement("b");
+          b.textContent = "Carte " + c.n + " : " + c.t;
+          li.appendChild(b);
+          var code = document.createElement("code");
+          code.textContent = candidates(c).slice(0, 10).join("   ·   ");
+          li.appendChild(code);
+          ul.appendChild(li);
+        });
+        var body = document.getElementById("diagBody");
+        var p1 = document.createElement("p");
+        p1.textContent = "Renommez le fichier avec l'un de ces noms, ou indiquez son chemin exact dans IMG_OVERRIDES en haut du script. Attention : un serveur comme GitHub Pages distingue les majuscules des minuscules, contrairement à Windows et macOS.";
+        body.appendChild(p1);
+        body.appendChild(ul);
+        box.hidden = false;
+      });
+    });
+  })();
+
+  window.addEventListener("resize", function () { applyView(); renderArrows(); });
+  applyView();
+  render();
+})();
+</script>
+
+</body>
+</html>
